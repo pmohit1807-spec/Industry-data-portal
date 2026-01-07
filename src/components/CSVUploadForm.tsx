@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { showSuccess, showError } from "@/utils/toast";
 import { upsertTractorSales } from "@/integrations/supabase/tractorSales";
-import { TractorSale, uniqueStates } from "@/data/tractorData";
+import { TractorSale } from "@/data/tractorData";
 import { Upload, Loader2, Download } from "lucide-react";
 import CSVReader from "react-csv-reader";
 import { normalizePivotedSalesData } from "@/utils/dataTransformation";
@@ -61,7 +61,7 @@ const CSVUploadForm: React.FC = () => {
         <CardDescription>
           Upload a CSV file to add new records or update existing ones.
           <br />
-          Required columns: <code>Month</code>, <code>Company</code>, <code>HP Range</code>, and columns for each state ({uniqueStates.join(', ')}).
+          Required columns: <code>Month</code>, <code>Company</code>, <code>HP Range</code>, and columns for each state (e.g., State1, State2, ...).
         </CardDescription>
       </CardHeader>
       <CardContent>

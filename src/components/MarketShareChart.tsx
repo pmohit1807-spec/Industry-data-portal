@@ -1,7 +1,7 @@
 import React from 'react';
 import {
-  LineChart,
-  Line,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -9,23 +9,22 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
-import { ChartDataPoint } from '@/utils/dataTransformation';
 import { CardContent } from '@/components/ui/card';
+import { ChartDataPoint } from '@/utils/dataTransformation';
 
-interface SalesLineChartProps {
-  data: ChartDataPoint[];
-  seriesKeys: string[]; // e.g., ['Mahindra', 'John Deere', ...]
-  dimensionName: 'company' | 'state';
+interface MarketShareChartProps {
+  data: ChartDataPoint[]; // Data points where values are 0-100% share
+  seriesKeys: string[]; // Company names
 }
 
-// Simple color palette for up to 5 series
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
+// Color palette for competitors
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#f43f5e'];
 
-const SalesLineChart: React.FC<SalesLineChartProps> = ({ data, seriesKeys, dimensionName }) => {
+const MarketShareChart: React.FC<MarketShareChartProps> = ({ data, seriesKeys }) => {
   if (data.length === 0) {
     return (
       <CardContent className="p-6 text-center text-muted-foreground h-[400px] flex items-center justify-center">
-        No data available to display chart based on current filters.
+        No data available to display market share trend.
       </CardContent>
     );
   }
@@ -33,18 +32,17 @@ const SalesLineChart: React.FC<SalesLineChartProps> = ({ data, seriesKeys, dimen
   return (
     <CardContent className="p-6 h-[400px]">
       <ResponsiveContainer width="100%" height="100%">
-        <LineChart
+        <AreaChart
           data={data}
-          margin={{
-            top: 5,
-            right: 30,
-            left: 20,
-            bottom: 5,
-          }}
+          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
           <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
-          <YAxis stroke="hsl(var(--foreground))" tickFormatter={(value) => value.toLocaleString()} />
+          <YAxis 
+            tickFormatter={(value) => `${value}%`} 
+            domain={[0, 100]} 
+            stroke="hsl(var(--foreground))" 
+          />
           <Tooltip 
             contentStyle={{ 
               backgroundColor: 'hsl(var(--card))', 
@@ -52,24 +50,25 @@ const SalesLineChart: React.FC<SalesLineChartProps> = ({ data, seriesKeys, dimen
               borderRadius: '0.5rem'
             }}
             labelStyle={{ fontWeight: 'bold', color: 'hsl(var(--foreground))' }}
-            formatter={(value: number, name: string) => [value.toLocaleString(), name]}
+            formatter={(value: number, name: string) => [`${value.toFixed(1)}%`, name]}
           />
           <Legend />
           {seriesKeys.map((key, index) => (
-            <Line
+            <Area
               key={key}
               type="monotone"
               dataKey={key}
+              stackId="1"
               stroke={COLORS[index % COLORS.length]}
-              strokeWidth={2}
-              dot={false}
+              fill={COLORS[index % COLORS.length]}
               name={key}
+              fillOpacity={0.8}
             />
           ))}
-        </LineChart>
+        </AreaChart>
       </ResponsiveContainer>
     </CardContent>
   );
 };
 
-export default SalesLineChart;
+export default MarketShareChart;

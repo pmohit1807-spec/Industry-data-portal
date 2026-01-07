@@ -1,13 +1,9 @@
-import TractorDashboard from "@/components/TractorDashboard";
-import { MadeWithDyad } from "@/components/made-with-dyad";
+import { Navigate } from "react-router-dom";
 
 const Index = () => {
-  return (
-    <div className="min-h-screen bg-background">
-      <TractorDashboard />
-      <MadeWithDyad />
-    </div>
-  );
+  // Since the root route is now wrapped by DashboardLayout in App.tsx, 
+  // this component is technically redundant, but we keep it simple.
+  return <Navigate to="/" replace />;
 };
 
 export default Index;
