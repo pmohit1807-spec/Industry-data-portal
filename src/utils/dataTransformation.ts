@@ -106,13 +106,13 @@ export const normalizePivotedSalesData = (csvData: string[][]): TractorSale[] =>
 };
 
 /**
- * Aggregates sales data by month and a specified dimension (e.g., company or state)
+ * Aggregates sales data by month and a specified dimension (e.g., company or state or hp_range)
  * for use in a line chart.
  * @param data Array of raw TractorSale objects (already filtered).
- * @param dimensionKey The key to use for creating separate series ('company' or 'state').
+ * @param dimensionKey The key to use for creating separate series ('company', 'state', or 'hp_range').
  * @returns Array of ChartDataPoint objects.
  */
-export const aggregateSalesForChart = (data: TractorSale[], dimensionKey: 'company' | 'state'): ChartDataPoint[] => {
+export const aggregateSalesForChart = (data: TractorSale[], dimensionKey: 'company' | 'state' | 'hp_range'): ChartDataPoint[] => {
   const aggregatedMap = new Map<string, ChartDataPoint>(); // Key: month
 
   for (const sale of data) {

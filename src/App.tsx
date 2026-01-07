@@ -8,7 +8,9 @@ import Login from "./pages/Login";
 import { SessionProvider } from "./components/SessionProvider";
 import DashboardLayout from "./components/DashboardLayout";
 import ExecutiveOverview from "./pages/ExecutiveOverview";
-import CSVUploadPage from "./pages/CSVUploadPage"; // Placeholder for the upload page
+import CSVUploadPage from "./pages/CSVUploadPage";
+import RegionalAnalysis from "./pages/RegionalAnalysis";
+import ProductSegmentAnalysis from "./pages/ProductSegmentAnalysis"; // New import
 
 const queryClient = new QueryClient();
 
@@ -23,6 +25,8 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/" element={<DashboardLayout />}>
               <Route index element={<ExecutiveOverview />} />
+              <Route path="regional" element={<RegionalAnalysis />} />
+              <Route path="segments" element={<ProductSegmentAnalysis />} /> {/* New route */}
               <Route path="upload" element={<CSVUploadPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             </Route>
