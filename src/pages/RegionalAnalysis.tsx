@@ -1,19 +1,146 @@
-import React from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { useTractorSales } from '@/hooks/useTractorSales';
+import { TractorSale } from '@/data/tractorData';
+import { aggregateSalesForChart, ChartDataPoint, pivotSalesData } from '@/utils/dataTransformation';
+import StateSelector from '@/components/StateSelector';
+import RegionalTIVChart from '@/components/RegionalTIVChart';
+import MarketShareChart from '@/components/MarketShareChart';
+import TractorTable from '@/components/TractorTable';
+import { parseMonthString } from '@/utils/dateUtils';
+
+// Define "Your Company" for the dashboard context
+const YOUR_COMPANY = "Mahindra";
+
+// Helper function to calculate Market Share per month for a specific state
+const calculateStateMarketShareData = (salesData: TractorSale[], state: string, uniqueCompanies: string[]): ChartDataPoint[] => {
+  const stateFilteredData = salesData.filter(d => d.state === state);
+  const monthlyAggregates = aggregateSalesForChart(stateFilteredData, 'company');
+
+  return monthlyAggregates.map(monthData => {
+    const totalSales = uniqueCompanies.reduce((sum, company) => sum + (monthData[company] as number || 0), 0);
+
+    const shareData: ChartDataPoint = { month: monthData.month };
+
+    uniqueCompanies.forEach(company => {
+      const sales = monthData[company] as number || 0;
+      // Store market share as percentage (0 to 100)
+      shareData[company] = totalSales > 0 ? (sales / totalSales) * 100 : 0;
+    });
+
+    return shareData;
+  }).sort((a, b) => 
+    parseMonthString(a.month as string).getTime() - parseMonthString(b.month as string).getTime()
+  );
+};
+
 
 const RegionalAnalysis: React.FC = () => {
-  // This page will be implemented in the next step.
+  const { data: salesData, isLoading, isError } = useTractorSales();
+  
+  const uniqueStates = useMemo(() => Array.from(new Set(salesData?.map(d => d.state) || [])).sort(), [salesData]);
+  const uniqueCompanies = useMemo(() => Array.from(new Set(salesData?.map(d => d.company) || [])), [salesData]);
+  
+  const [selectedState, setSelectedState] = useState<string>(uniqueStates[0] || '');
+
+  // Update selectedState when uniqueStates loads or changes
+  useEffect(() => {
+    if (uniqueStates.length > 0 && !selectedState) {
+      setSelectedState(uniqueStates[0]);
+    }
+  }, [uniqueStates, selectedState]);
+
+  // 1. Regional TIV Trend Data (for the selected state)
+  const regionalTIVTrendData = useMemo(() => {
+    if (!salesData || !selectedState) return [];
+    
+    // Filter data for the selected state
+    const stateFilteredData = salesData.filter(d => d.state === selectedState);
+    
+    // Aggregate by month and use state name as the dimension key
+    const monthlyAggregates = aggregateSalesForChart(stateFilteredData, 'state');
+    
+    // Sort by date
+    return monthlyAggregates.sort((a, b) => 
+      parseMonthString(a.month as string).getTime() - parseMonthString(b.month as string).getTime()
+    );
+    
+  }, [salesData, selectedState]);
+
+  // 2. Regional Market Share Trend Data (for the selected state)
+  const regionalMarketShareData = useMemo(() => {
+    if (!salesData || !selectedState) return [];
+    return calculateStateMarketShareData(salesData, selectedState, uniqueCompanies);
+  }, [salesData, selectedState, uniqueCompanies]);
+  
+  // 3. Pivoted Table Data (Latest Month)
+  const pivotedTableData = useMemo(() => {
+    if (!salesData || salesData.length === 0) return [];
+    
+    // Find the latest month
+    const uniqueMonths = Array.from(new Set(salesData.map(d => d.month)));
+    const latestMonth = uniqueMonths.sort((a, b) => parseMonthString(b).getTime() - parseMonthString(a).getTime())[0];
+    
+    const latestMonthSales = salesData.filter(d => d.month === latestMonth);
+    
+    // Pivot the latest month data across all states
+    return pivotSalesData(latestMonthSales, uniqueStates);
+    
+  }, [salesData, uniqueStates]);
+
+
+  if (isLoading) {
+    return (
+      <div className="p-8 flex justify-center items-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return <div className="p-8 text-center text-destructive">Failed to load sales data.</div>;
+  }
+  
+  if (uniqueStates.length === 0) {
+     return <div className="p-8 text-center text-muted-foreground">No sales data available. Please upload data via the Data Upload page.</div>;
+  }
+
   return (
     <div className="space-y-8">
       <h1 className="text-3xl font-bold">Regional Analysis: State-wise Performance</h1>
       
+      <div className="flex justify-start">
+        <StateSelector 
+          uniqueStates={uniqueStates} 
+          selectedState={selectedState} 
+          onStateChange={setSelectedState} 
+        />
+      </div>
+      
+      {/* Regional TIV Trend */}
       <Card>
         <CardHeader>
-          <CardTitle>Regional Dashboard</CardTitle>
+          <CardTitle>Total Industry Volume (TIV) Trend in {selectedState}</CardTitle>
         </CardHeader>
-        <CardContent className="p-6 text-center text-muted-foreground h-[400px] flex items-center justify-center">
-          Regional analysis components will be implemented here.
+        <RegionalTIVChart data={regionalTIVTrendData} stateName={selectedState} />
+      </Card>
+
+      {/* Regional Market Share Trend */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Market Share Trend in {selectedState}</CardTitle>
+        </CardHeader>
+        <MarketShareChart data={regionalMarketShareData} seriesKeys={uniqueCompanies} />
+      </Card>
+      
+      {/* Detailed Data Table (Latest Month) */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Detailed Sales Breakdown (Latest Month)</CardTitle>
+        </CardHeader>
+        <CardContent className="p-0">
+          <TractorTable data={pivotedTableData} uniqueStates={uniqueStates} />
         </CardContent>
       </Card>
     </div>
