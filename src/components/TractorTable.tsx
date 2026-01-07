@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PivotedSale } from "@/utils/dataTransformation";
+import { cn } from "@/lib/utils"; // Import cn
 
 interface TractorTableProps {
   data: PivotedSale[];
@@ -34,18 +35,24 @@ const TractorTable: React.FC<TractorTableProps> = ({ data, uniqueStates }) => {
               <TableHead key={header} className="w-[150px]">{header}</TableHead>
             ))}
             {stateHeaders.map(state => (
-              <TableHead key={state} className="text-right">{state} (Units)</TableHead>
+              <TableHead key={state} className="text-right min-w-[100px]">{state} (Units)</TableHead>
             ))}
           </TableRow>
         </TableHeader>
         <TableBody>
           {data.map((sale, index) => (
-            <TableRow key={index}>
+            <TableRow 
+              key={index}
+              className={cn(
+                index % 2 === 0 ? 'bg-background' : 'bg-muted/50',
+                'hover:bg-muted/70'
+              )}
+            >
               <TableCell className="font-medium">{sale.month}</TableCell>
               <TableCell>{sale.company}</TableCell>
               <TableCell>{sale.hp_range}</TableCell>
               {stateHeaders.map(state => (
-                <TableCell key={state} className="text-right">
+                <TableCell key={state} className="text-right tabular-nums">
                   {(sale[state] as number)?.toLocaleString() || 0}
                 </TableCell>
               ))}

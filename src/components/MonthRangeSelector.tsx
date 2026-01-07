@@ -1,7 +1,6 @@
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
 
 interface MonthRangeSelectorProps {
   allMonths: string[]; // Sorted list of all available months (e.g., ["Jan 2023", "Feb 2023", ...])
@@ -26,49 +25,47 @@ const MonthRangeSelector: React.FC<MonthRangeSelectorProps> = ({
   const selectableEndMonths = allMonths.slice(startMonthIndex);
 
   return (
-    <Card className="p-4">
-      <CardContent className="p-0 flex flex-col md:flex-row gap-4">
-        {/* Start Month Selector */}
-        <div className="flex flex-col space-y-1">
-          <Label htmlFor="start-month">Start Month</Label>
-          <Select 
-            value={startMonth || allMonths[0]} 
-            onValueChange={onStartMonthChange}
-          >
-            <SelectTrigger id="start-month" className="w-[150px]">
-              <SelectValue placeholder="Select Start Month" />
-            </SelectTrigger>
-            <SelectContent>
-              {selectableStartMonths.map(month => (
-                <SelectItem key={month} value={month}>
-                  {month}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="flex flex-col sm:flex-row gap-4 p-2 bg-card rounded-lg border shadow-sm">
+      {/* Start Month Selector */}
+      <div className="flex flex-col space-y-1">
+        <Label htmlFor="start-month" className="text-xs text-muted-foreground">Start Month</Label>
+        <Select 
+          value={startMonth || allMonths[0]} 
+          onValueChange={onStartMonthChange}
+        >
+          <SelectTrigger id="start-month" className="w-[150px]">
+            <SelectValue placeholder="Select Start Month" />
+          </SelectTrigger>
+          <SelectContent>
+            {selectableStartMonths.map(month => (
+              <SelectItem key={month} value={month}>
+                {month}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-        {/* End Month Selector */}
-        <div className="flex flex-col space-y-1">
-          <Label htmlFor="end-month">End Month</Label>
-          <Select 
-            value={endMonth || allMonths[allMonths.length - 1]} 
-            onValueChange={onEndMonthChange}
-          >
-            <SelectTrigger id="end-month" className="w-[150px]">
-              <SelectValue placeholder="Select End Month" />
-            </SelectTrigger>
-            <SelectContent>
-              {selectableEndMonths.map(month => (
-                <SelectItem key={month} value={month}>
-                  {month}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </CardContent>
-    </Card>
+      {/* End Month Selector */}
+      <div className="flex flex-col space-y-1">
+        <Label htmlFor="end-month" className="text-xs text-muted-foreground">End Month</Label>
+        <Select 
+          value={endMonth || allMonths[allMonths.length - 1]} 
+          onValueChange={onEndMonthChange}
+        >
+          <SelectTrigger id="end-month" className="w-[150px]">
+            <SelectValue placeholder="Select End Month" />
+          </SelectTrigger>
+          <SelectContent>
+            {selectableEndMonths.map(month => (
+              <SelectItem key={month} value={month}>
+                {month}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
   );
 };
 
