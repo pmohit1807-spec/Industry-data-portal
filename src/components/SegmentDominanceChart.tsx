@@ -19,6 +19,7 @@ interface SegmentDominanceData {
 interface SegmentDominanceChartProps {
   data: SegmentDominanceData[];
   yourCompany: string;
+  seriesKeys: string[]; // Explicitly passed keys for rendering
 }
 
 // Color palette for comparison
@@ -28,7 +29,7 @@ const COLORS = {
     'Competitor 2': '#f59e0b', // Yellow/Orange
 };
 
-const SegmentDominanceChart: React.FC<SegmentDominanceChartProps> = ({ data, yourCompany }) => {
+const SegmentDominanceChart: React.FC<SegmentDominanceChartProps> = ({ data, yourCompany, seriesKeys }) => {
   if (data.length === 0) {
     return (
       <CardContent className="p-6 text-center text-muted-foreground h-[400px] flex items-center justify-center">
@@ -37,20 +38,28 @@ const SegmentDominanceChart: React.FC<SegmentDominanceChartProps> = ({ data, you
     );
   }
   
-  // Dynamically determine series keys (companies) present in the data
-  const seriesKeys = Object.keys(data[0]).filter(key => key !== 'hp_range');
-  
   // Map keys to display names and colors
-  const getDisplayName = (key: string, index: number) => {
+  const getDisplayName = (key: string) => {
       if (key === yourCompany) return 'Your Company';
-      return `Competitor ${index}`;
+      
+      // Find the index of the competitor among the non-YourCompany keys
+      const competitorKeys = seriesKeys.filter(k => k !== yourCompany);
+      const index = competitorKeys.indexOf(key);
+      
+      if (index === 0) return 'Competitor 1';
+      if (index === 1) return 'Competitor 2';
+      return key; // Fallback for unexpected keys
   };
   
   const getFillColor = (key: string) => {
       if (key === yourCompany) return COLORS['Your Company'];
-      if (seriesKeys.indexOf(key) === 1) return COLORS['Competitor 1'];
-      if (seriesKeys.indexOf(key) === 2) return COLORS['Competitor 2'];
-      return '#94a3b8'; // Default gray for others if somehow more than 3 appear
+      
+      const competitorKeys = seriesKeys.filter(k => k !== yourCompany);
+      const index = competitorKeys.indexOf(key);
+      
+      if (index === 0) return COLORS['Competitor 1'];
+      if (index === 1) return COLORS['Competitor 2'];
+      return '#94a3b8'; // Default gray for others
   };
 
   return (
@@ -78,11 +87,11 @@ const SegmentDominanceChart: React.FC<SegmentDominanceChartProps> = ({ data, you
           />
           <Legend />
           
-          {seriesKeys.map((key, index) => (
+          {seriesKeys.map((key) => (
             <Bar 
               key={key}
               dataKey={key} 
-              name={getDisplayName(key, index)} 
+              name={getDisplayName(key)} 
               fill={getFillColor(key)} 
               radius={[4, 4, 0, 0]}
             />

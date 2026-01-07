@@ -121,6 +121,22 @@ const ProductSegmentAnalysis: React.FC = () => {
     return calculateSegmentDominance(salesData, uniqueHPRanges, uniqueCompanies);
   }, [salesData, uniqueHPRanges, uniqueCompanies]);
   
+  // Extract the keys (companies) that were included in the dominance data calculation
+  const dominanceSeriesKeys = useMemo(() => {
+    if (segmentDominanceData.length === 0) return [];
+    // Extract keys from the first data point, excluding 'hp_range'. 
+    // We sort them to ensure consistent rendering order (e.g., Your Company first, then Competitor 1, etc.)
+    const keys = Object.keys(segmentDominanceData[0]).filter(key => key !== 'hp_range');
+    
+    // Ensure 'Your Company' is first, followed by competitors in their calculated order
+    const yourCompanyIndex = keys.indexOf(YOUR_COMPANY);
+    if (yourCompanyIndex > -1) {
+        keys.splice(yourCompanyIndex, 1); // Remove Your Company
+        keys.unshift(YOUR_COMPANY); // Add Your Company to the start
+    }
+    return keys;
+  }, [segmentDominanceData]);
+  
   // 3. HP Trend Analysis Data
   const hpTrendData = useMemo(() => {
     if (!salesData) return [];
@@ -184,6 +200,7 @@ const ProductSegmentAnalysis: React.FC = () => {
         <SegmentDominanceChart 
           data={segmentDominanceData} 
           yourCompany={YOUR_COMPANY}
+          seriesKeys={dominanceSeriesKeys}
         />
       </Card>
     </div>
