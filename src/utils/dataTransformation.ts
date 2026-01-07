@@ -12,6 +12,10 @@ export interface ChartDataPoint {
   [key: string]: string | number; // Dynamic keys for series (e.g., company names or state names)
 }
 
+export interface ComparisonDataPoint {
+  [key: string]: string | number; // Dynamic keys for primary dimension (e.g., 'state' or 'hp_range') and series
+}
+
 /**
  * Pivots the raw tractor sales data to show units sold per state in separate columns.
  * @param data Array of raw TractorSale objects.
@@ -133,4 +137,45 @@ export const aggregateSalesForChart = (data: TractorSale[], dimensionKey: 'compa
 
   // Simple sorting by month string
   return Array.from(aggregatedMap.values()).sort((a, b) => a.month.localeCompare(b.month));
+};
+
+/**
+ * Aggregates sales data by a primary dimension (e.g., 'hp_range') 
+ * and uses a secondary dimension (e.g., 'company') for series keys.
+ * This is for static comparison charts (not time series).
+ * @param data Array of raw TractorSale objects.
+ * @param primaryDimensionKey The key to group the results by ('state' or 'hp_range').
+ * @param seriesDimensionKey The key to use for creating separate series ('company').
+ * @returns Array of objects where each object represents a primary dimension value, 
+ *          with keys for each series dimension value.
+ */
+export const aggregateSalesByDimension = (
+  data: TractorSale[], 
+  primaryDimensionKey: 'state' | 'hp_range', 
+  seriesDimensionKey: 'company'
+): ComparisonDataPoint[] => {
+  const aggregatedMap = new Map<string, ComparisonDataPoint>(); // Key: primaryDimensionValue
+
+  for (const sale of data) {
+    const primaryValue = sale[primaryDimensionKey];
+    const seriesValue = sale[seriesDimensionKey];
+    const unitsSold = sale.units_sold;
+
+    if (!aggregatedMap.has(primaryValue)) {
+      // FIX: Use ComparisonDataPoint which doesn't require 'month'
+      aggregatedMap.set(primaryValue, { [primaryDimensionKey]: primaryValue });
+    }
+
+    const record = aggregatedMap.get(primaryValue)!;
+    
+    const currentUnits = record[seriesValue] as number || 0;
+    record[seriesValue] = currentUnits + unitsSold;
+  }
+
+  // Sort by primary dimension key (e.g., state name or HP range)
+  return Array.from(aggregatedMap.values()).sort((a, b) => {
+    const aVal = a[primaryDimensionKey] as string;
+    const bVal = b[primaryDimensionKey] as string;
+    return aVal.localeCompare(bVal);
+  });
 };

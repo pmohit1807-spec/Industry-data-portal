@@ -10,7 +10,8 @@ import DashboardLayout from "./components/DashboardLayout";
 import ExecutiveOverview from "./pages/ExecutiveOverview";
 import CSVUploadPage from "./pages/CSVUploadPage";
 import RegionalAnalysis from "./pages/RegionalAnalysis";
-import ProductSegmentAnalysis from "./pages/ProductSegmentAnalysis"; // New import
+import ProductSegmentAnalysis from "./pages/ProductSegmentAnalysis";
+import CompetitiveDeepDive from "./pages/CompetitiveDeepDive"; // New import
 
 const queryClient = new QueryClient();
 
@@ -26,7 +27,8 @@ const App = () => (
             <Route path="/" element={<DashboardLayout />}>
               <Route index element={<ExecutiveOverview />} />
               <Route path="regional" element={<RegionalAnalysis />} />
-              <Route path="segments" element={<ProductSegmentAnalysis />} /> {/* New route */}
+              <Route path="segments" element={<ProductSegmentAnalysis />} />
+              <Route path="competitive" element={<CompetitiveDeepDive />} /> {/* New route */}
               <Route path="upload" element={<CSVUploadPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             </Route>
