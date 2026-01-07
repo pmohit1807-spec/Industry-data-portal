@@ -8,6 +8,7 @@ import MarketShareChart from '@/components/MarketShareChart';
 import CurrentMonthSnapshot from '@/components/CurrentMonthSnapshot';
 import { TractorSale } from '@/data/tractorData';
 import { useSalesData } from '@/components/DashboardLayout';
+import DashboardSkeleton from '@/components/DashboardSkeleton'; // Import Skeleton
 
 // Define "Your Company" for the dashboard context
 const YOUR_COMPANY = "Mahindra";
@@ -107,11 +108,7 @@ const ExecutiveOverview: React.FC = () => {
 
 
   if (isLoading) {
-    return (
-      <div className="p-8 flex justify-center items-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (isError) {

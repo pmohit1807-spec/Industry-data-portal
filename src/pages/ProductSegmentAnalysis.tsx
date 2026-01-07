@@ -8,6 +8,7 @@ import HPTrendAnalysisChart from '@/components/HPTrendAnalysisChart';
 import { aggregateSalesForChart } from '@/utils/dataTransformation';
 import { parseMonthString } from '@/utils/dateUtils';
 import { useSalesData } from '@/components/DashboardLayout';
+import DashboardSkeleton from '@/components/DashboardSkeleton'; // Import Skeleton
 
 // Define "Your Company" for the dashboard context
 const YOUR_COMPANY = "Mahindra";
@@ -157,11 +158,7 @@ const ProductSegmentAnalysis: React.FC = () => {
 
 
   if (isLoading) {
-    return (
-      <div className="p-8 flex justify-center items-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (isError) {
