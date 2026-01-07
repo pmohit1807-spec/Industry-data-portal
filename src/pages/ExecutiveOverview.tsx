@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { useTractorSales } from '@/hooks/useTractorSales';
 import { Loader2 } from 'lucide-react';
 import { aggregateSalesForChart } from '@/utils/dataTransformation';
 import { parseMonthString } from '@/utils/dateUtils';
@@ -8,6 +7,7 @@ import TIVTrendChart from '@/components/TIVTrendChart';
 import MarketShareChart from '@/components/MarketShareChart';
 import CurrentMonthSnapshot from '@/components/CurrentMonthSnapshot';
 import { TractorSale } from '@/data/tractorData';
+import { useSalesData } from '@/components/DashboardLayout';
 
 // Define "Your Company" for the dashboard context
 const YOUR_COMPANY = "Mahindra";
@@ -60,7 +60,7 @@ const calculateMarketShareData = (salesData: TractorSale[], uniqueCompanies: str
 };
 
 const ExecutiveOverview: React.FC = () => {
-  const { data: salesData, isLoading, isError } = useTractorSales();
+  const { filteredSalesData: salesData, isLoading, isError } = useSalesData();
   
   const uniqueCompanies = useMemo(() => Array.from(new Set(salesData?.map(d => d.company) || [])), [salesData]);
 
@@ -80,7 +80,7 @@ const ExecutiveOverview: React.FC = () => {
   const currentMonthSnapshotData = useMemo(() => {
     if (!salesData || salesData.length === 0) return [];
     
-    // Find the latest month
+    // Find the latest month in the FILTERED data
     const uniqueMonths = Array.from(new Set(salesData.map(d => d.month)));
     const latestMonth = uniqueMonths.sort((a, b) => parseMonthString(b).getTime() - parseMonthString(a).getTime())[0];
     
@@ -116,6 +116,10 @@ const ExecutiveOverview: React.FC = () => {
 
   if (isError) {
     return <div className="p-8 text-center text-destructive">Failed to load sales data.</div>;
+  }
+  
+  if (salesData?.length === 0) {
+     return <div className="p-8 text-center text-muted-foreground">No sales data available for the selected period.</div>;
   }
 
   return (

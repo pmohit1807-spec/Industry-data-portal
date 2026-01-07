@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { useTractorSales } from '@/hooks/useTractorSales';
 import { Loader2 } from 'lucide-react';
 import { TractorSale } from '@/data/tractorData';
 import { aggregateSalesByDimension, ComparisonDataPoint } from '@/utils/dataTransformation';
 import CompanyComparisonChart from '@/components/CompanyComparisonChart';
+import { useSalesData } from '@/components/DashboardLayout';
 
 // Define "Your Company" for the dashboard context
 const YOUR_COMPANY = "Mahindra";
@@ -23,7 +23,7 @@ const calculateStateComparison = (salesData: TractorSale[]): ComparisonDataPoint
 
 
 const CompetitiveDeepDive: React.FC = () => {
-  const { data: salesData, isLoading, isError } = useTractorSales();
+  const { filteredSalesData: salesData, isLoading, isError } = useSalesData();
   
   const uniqueCompanies = useMemo(() => Array.from(new Set(salesData?.map(d => d.company) || [])).sort(), [salesData]);
 
@@ -52,8 +52,8 @@ const CompetitiveDeepDive: React.FC = () => {
     return <div className="p-8 text-center text-destructive">Failed to load sales data.</div>;
   }
   
-  if (salesData.length === 0) {
-     return <div className="p-8 text-center text-muted-foreground">No sales data available. Please upload data via the Data Upload page.</div>;
+  if (salesData?.length === 0) {
+     return <div className="p-8 text-center text-muted-foreground">No sales data available for the selected period.</div>;
   }
 
   return (

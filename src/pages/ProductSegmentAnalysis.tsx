@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { Card, CardHeader, CardTitle } from '@/components/ui/card';
-import { useTractorSales } from '@/hooks/useTractorSales';
 import { Loader2 } from 'lucide-react';
 import { TractorSale } from '@/data/tractorData';
 import SegmentCompositionChart from '@/components/SegmentCompositionChart';
@@ -8,6 +7,7 @@ import SegmentDominanceChart from '@/components/SegmentDominanceChart';
 import HPTrendAnalysisChart from '@/components/HPTrendAnalysisChart';
 import { aggregateSalesForChart } from '@/utils/dataTransformation';
 import { parseMonthString } from '@/utils/dateUtils';
+import { useSalesData } from '@/components/DashboardLayout';
 
 // Define "Your Company" for the dashboard context
 const YOUR_COMPANY = "Mahindra";
@@ -98,13 +98,13 @@ const calculateHPTrendAnalysis = (salesData: TractorSale[]): HPTrendData[] => {
   
   // Sort by month
   return monthlyAggregates.sort((a, b) => 
-    parseMonthString(a.month).getTime() - parseMonthString(b.month).getTime()
+    parseMonthString(a.month as string).getTime() - parseMonthString(b.month as string).getTime()
   );
 };
 
 
 const ProductSegmentAnalysis: React.FC = () => {
-  const { data: salesData, isLoading, isError } = useTractorSales();
+  const { filteredSalesData: salesData, isLoading, isError } = useSalesData();
   
   const uniqueHPRanges = useMemo(() => getUniqueHPRanges(salesData || []), [salesData]);
   const uniqueCompanies = useMemo(() => Array.from(new Set(salesData?.map(d => d.company) || [])), [salesData]);
@@ -150,6 +150,10 @@ const ProductSegmentAnalysis: React.FC = () => {
 
   if (isError) {
     return <div className="p-8 text-center text-destructive">Failed to load sales data.</div>;
+  }
+  
+  if (salesData?.length === 0) {
+     return <div className="p-8 text-center text-muted-foreground">No sales data available for the selected period.</div>;
   }
 
   return (

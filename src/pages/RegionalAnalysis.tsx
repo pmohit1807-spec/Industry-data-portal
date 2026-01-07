@@ -1,7 +1,6 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { useTractorSales } from '@/hooks/useTractorSales';
 import { TractorSale } from '@/data/tractorData';
 import { aggregateSalesForChart, ChartDataPoint, pivotSalesData } from '@/utils/dataTransformation';
 import StateSelector from '@/components/StateSelector';
@@ -9,6 +8,7 @@ import RegionalTIVChart from '@/components/RegionalTIVChart';
 import MarketShareChart from '@/components/MarketShareChart';
 import TractorTable from '@/components/TractorTable';
 import { parseMonthString } from '@/utils/dateUtils';
+import { useSalesData } from '@/components/DashboardLayout';
 
 // Define "Your Company" for the dashboard context
 const YOUR_COMPANY = "Mahindra";
@@ -37,17 +37,21 @@ const calculateStateMarketShareData = (salesData: TractorSale[], state: string, 
 
 
 const RegionalAnalysis: React.FC = () => {
-  const { data: salesData, isLoading, isError } = useTractorSales();
+  const { filteredSalesData: salesData, isLoading, isError } = useSalesData();
   
   const uniqueStates = useMemo(() => Array.from(new Set(salesData?.map(d => d.state) || [])).sort(), [salesData]);
   const uniqueCompanies = useMemo(() => Array.from(new Set(salesData?.map(d => d.company) || [])), [salesData]);
   
-  const [selectedState, setSelectedState] = useState<string>(uniqueStates[0] || '');
+  const [selectedState, setSelectedState] = useState<string>('');
 
   // Update selectedState when uniqueStates loads or changes
   useEffect(() => {
-    if (uniqueStates.length > 0 && !selectedState) {
-      setSelectedState(uniqueStates[0]);
+    if (uniqueStates.length > 0) {
+      if (!selectedState || !uniqueStates.includes(selectedState)) {
+        setSelectedState(uniqueStates[0]);
+      }
+    } else if (selectedState) {
+        setSelectedState('');
     }
   }, [uniqueStates, selectedState]);
 
@@ -74,17 +78,17 @@ const RegionalAnalysis: React.FC = () => {
     return calculateStateMarketShareData(salesData, selectedState, uniqueCompanies);
   }, [salesData, selectedState, uniqueCompanies]);
   
-  // 3. Pivoted Table Data (Latest Month)
+  // 3. Pivoted Table Data (Latest Month in the FILTERED range)
   const pivotedTableData = useMemo(() => {
     if (!salesData || salesData.length === 0) return [];
     
-    // Find the latest month
+    // Find the latest month in the FILTERED data
     const uniqueMonths = Array.from(new Set(salesData.map(d => d.month)));
     const latestMonth = uniqueMonths.sort((a, b) => parseMonthString(b).getTime() - parseMonthString(a).getTime())[0];
     
     const latestMonthSales = salesData.filter(d => d.month === latestMonth);
     
-    // Pivot the latest month data across all states
+    // Pivot the latest month data across all states (using uniqueStates from filtered data)
     return pivotSalesData(latestMonthSales, uniqueStates);
     
   }, [salesData, uniqueStates]);
@@ -103,7 +107,7 @@ const RegionalAnalysis: React.FC = () => {
   }
   
   if (uniqueStates.length === 0) {
-     return <div className="p-8 text-center text-muted-foreground">No sales data available. Please upload data via the Data Upload page.</div>;
+     return <div className="p-8 text-center text-muted-foreground">No sales data available for the selected period.</div>;
   }
 
   return (
@@ -111,11 +115,14 @@ const RegionalAnalysis: React.FC = () => {
       <h1 className="text-3xl font-bold">Regional Analysis: State-wise Performance</h1>
       
       <div className="flex justify-start">
-        <StateSelector 
-          uniqueStates={uniqueStates} 
-          selectedState={selectedState} 
-          onStateChange={setSelectedState} 
-        />
+        {/* State selector is now optional if no states are present in the filtered data */}
+        {selectedState && (
+            <StateSelector 
+              uniqueStates={uniqueStates} 
+              selectedState={selectedState} 
+              onStateChange={setSelectedState} 
+            />
+        )}
       </div>
       
       {/* Regional TIV Trend */}
