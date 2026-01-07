@@ -60,7 +60,8 @@ const CurrentMonthSnapshot: React.FC<CurrentMonthSnapshotProps> = ({ data }) => 
             ))}
           </Pie>
           <Tooltip content={<CustomTooltip />} />
-          <Legend layout="vertical" align="right" verticalAlign="middle" wrapperStyle={{ paddingLeft: '20px' }} />
+          {/* Updated Legend to horizontal layout at the bottom */}
+          <Legend layout="horizontal" align="center" verticalAlign="bottom" height={36} />
         </PieChart>
       </ResponsiveContainer>
     </CardContent>
