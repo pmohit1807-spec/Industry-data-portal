@@ -34,10 +34,18 @@ const HPTrendAnalysisChart: React.FC<HPTrendAnalysisChartProps> = ({ data, serie
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data}
-          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          // Reduced margins for better fit on smaller screens
+          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
-          <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
+          <XAxis 
+            dataKey="month" 
+            stroke="hsl(var(--foreground))" 
+            // Rotate labels on small screens for better fit
+            angle={-15} 
+            textAnchor="end" 
+            height={50}
+          />
           <YAxis 
             stroke="hsl(var(--foreground))" 
             tickFormatter={(value) => value.toLocaleString()}

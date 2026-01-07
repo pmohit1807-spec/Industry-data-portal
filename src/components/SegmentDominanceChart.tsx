@@ -67,7 +67,8 @@ const SegmentDominanceChart: React.FC<SegmentDominanceChartProps> = ({ data, you
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          // Reduced margins for better fit on smaller screens
+          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
           barCategoryGap="20%"
         >
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />

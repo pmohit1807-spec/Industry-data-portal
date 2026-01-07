@@ -39,10 +39,18 @@ const TIVTrendChart: React.FC<TIVTrendChartProps> = ({ data, yourCompany }) => {
       <ResponsiveContainer width="100%" height="100%">
         <ComposedChart
           data={data}
-          margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+          // Reduced margins for better fit on smaller screens
+          margin={{ top: 5, right: 10, left: -10, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
-          <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
+          <XAxis 
+            dataKey="month" 
+            stroke="hsl(var(--foreground))" 
+            // Rotate labels on small screens for better fit
+            angle={-15} 
+            textAnchor="end" 
+            height={50}
+          />
           
           {/* Left Y-Axis for TIV (Bar) */}
           <YAxis 
@@ -50,7 +58,7 @@ const TIVTrendChart: React.FC<TIVTrendChartProps> = ({ data, yourCompany }) => {
             orientation="left" 
             stroke="#3b82f6" 
             tickFormatter={(value) => value.toLocaleString()}
-            label={{ value: 'Total Industry Volume (TIV)', angle: -90, position: 'insideLeft', fill: '#3b82f6' }}
+            // Removed label for space saving on mobile
           />
           
           {/* Right Y-Axis for Company Sales (Line) */}
@@ -59,7 +67,7 @@ const TIVTrendChart: React.FC<TIVTrendChartProps> = ({ data, yourCompany }) => {
             orientation="right" 
             stroke="#10b981" 
             tickFormatter={(value) => value.toLocaleString()}
-            label={{ value: `${yourCompany} Sales`, angle: 90, position: 'insideRight', fill: '#10b981' }}
+            // Removed label for space saving on mobile
           />
           
           <Tooltip 

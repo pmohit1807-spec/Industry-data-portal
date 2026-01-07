@@ -34,10 +34,18 @@ const MarketShareChart: React.FC<MarketShareChartProps> = ({ data, seriesKeys })
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={data}
-          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+          // Reduced margins for better fit on smaller screens
+          margin={{ top: 10, right: 10, left: -10, bottom: 5 }}
         >
           <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
-          <XAxis dataKey="month" stroke="hsl(var(--foreground))" />
+          <XAxis 
+            dataKey="month" 
+            stroke="hsl(var(--foreground))" 
+            // Rotate labels on small screens for better fit
+            angle={-15} 
+            textAnchor="end" 
+            height={50}
+          />
           <YAxis 
             tickFormatter={(value) => `${value}%`} 
             domain={[0, 100]} 
