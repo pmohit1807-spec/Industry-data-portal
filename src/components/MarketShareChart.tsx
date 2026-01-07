@@ -60,7 +60,8 @@ const MarketShareChart: React.FC<MarketShareChartProps> = ({ data, seriesKeys })
             labelStyle={{ fontWeight: 'bold', color: 'hsl(var(--foreground))' }}
             formatter={(value: number, name: string) => [`${value.toFixed(1)}%`, name]}
           />
-          <Legend />
+          {/* Move Legend to the bottom center */}
+          <Legend verticalAlign="bottom" height={36} />
           {seriesKeys.map((key, index) => (
             <Area
               key={key}

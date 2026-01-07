@@ -86,7 +86,8 @@ const SegmentDominanceChart: React.FC<SegmentDominanceChartProps> = ({ data, you
             labelStyle={{ fontWeight: 'bold', color: 'hsl(var(--foreground))' }}
             formatter={(value: number, name: string) => [value.toLocaleString(), name]}
           />
-          <Legend />
+          {/* Move Legend to the bottom center */}
+          <Legend verticalAlign="bottom" height={36} />
           
           {seriesKeys.map((key) => (
             <Bar 
