@@ -10,6 +10,10 @@ import CSVReader from "react-csv-reader";
 import { normalizePivotedSalesData } from "@/utils/dataTransformation";
 import { useQueryClient } from "@tanstack/react-query";
 
+// Define a type alias for CSVReader to bypass strict type checking 
+// for the render prop pattern, as the library's types seem incomplete regarding the 'children' prop function.
+const TypedCSVReader = CSVReader as React.FC<any>;
+
 
 const CSVUploadForm: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -73,7 +77,7 @@ const CSVUploadForm: React.FC = () => {
             — OR —
           </div>
 
-          <CSVReader
+          <TypedCSVReader
             cssClass="csv-reader-input"
             label="Select CSV file"
             onFileLoaded={handleCSVData}
@@ -119,7 +123,7 @@ const CSVUploadForm: React.FC = () => {
                 {file && <p className="text-sm text-muted-foreground">Selected file: {file.name}</p>}
               </div>
             )}
-          </CSVReader>
+          </TypedCSVReader>
         </div>
       </CardContent>
     </Card>
